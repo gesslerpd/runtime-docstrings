@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-
+import ast
 import dataclasses
 import inspect
-
-import warnings
-from textwrap import dedent
-import ast
 import types
+import warnings
 from enum import Enum
+from textwrap import dedent
+from typing import TypeVar
+
+T = TypeVar("T", bound=type)
 
 
 def _parse_docstrings(node: ast.ClassDef) -> dict[str, str]:
@@ -28,9 +29,7 @@ def _parse_docstrings(node: ast.ClassDef) -> dict[str, str]:
                 continue
 
         match body[index]:
-            case ast.Expr(value=ast.Constant(value=doc_str)) if isinstance(
-                doc_str, str
-            ):
+            case ast.Expr(value=ast.Constant(value=doc_str)) if isinstance(doc_str, str):
                 docs[name] = inspect.cleandoc(doc_str)
                 index += 1
     return docs
@@ -45,6 +44,7 @@ def get_docstrings(cls: type) -> dict[str, str]:
     Returns:
         A dictionary where keys are attribute names and values are their
         corresponding docstrings.
+
     """
     if "__attribute_docs__" in cls.__dict__:
         return cls.__attribute_docs__
@@ -81,23 +81,27 @@ def _attach_enum(cls: type[Enum], comments: dict[str, str]) -> None:
         canonical_name = member.name
         if name != canonical_name and name in comments:
             warnings.warn(
-                f"Enum alias member {cls.__name__}.{name} has docstring that should be documented on {cls.__name__}.{canonical_name}"
+                f"Enum alias member {cls.__name__}.{name} has docstring "
+                f"that should be documented on {cls.__name__}.{canonical_name}",
+                stacklevel=1,
             )
             if canonical_name not in comments:
                 member.__doc__ = comments[name]
 
 
-def docstrings(cls: type) -> type:
-    """Decorator that attaches attribute/member docstrings to a class.
+def docstrings(cls: T) -> T:
+    """Attach attribute/member docstrings to a class.
 
-    If the class is an enum, docstrings are attached via enum members.
+    If the class is an enum, attach docstrings via enum members.
 
-    If the class is a dataclass, docstrings are attached via field metadata.
+    If the class is a dataclass, attach docstrings via field metadata.
 
-    Parameters:
+    Args:
         cls: The class to process.
+
     Returns:
         The same class with attached docstrings.
+
     """
     assert inspect.isclass(cls), "cls must be a class"
 

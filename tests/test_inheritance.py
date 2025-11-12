@@ -76,7 +76,6 @@ def test_basic_inheritance():
 
 def test_mro_resolution():
     """Test MRO resolution for docstring access."""
-
     # Child can resolve its own docstrings
     assert Child.__doc_CHILD_VAR__ == "Child variable."
 

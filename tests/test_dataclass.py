@@ -1,10 +1,9 @@
 """Test dataclass support for runtime_docs."""
 
 import dataclasses
-from dataclasses import dataclass, field, InitVar
-from typing import List, Dict, Optional, ClassVar
+from dataclasses import InitVar, dataclass, field
 from enum import Enum
-
+from typing import ClassVar
 
 from runtime_docstrings import docstrings, get_docstrings
 
@@ -20,12 +19,12 @@ class BasicDataClass:
     age: int = 30
     """The age field with default value."""
 
-    tags: List[str] = dataclasses.field(default_factory=list)
+    tags: list[str] = dataclasses.field(default_factory=list)
     """List of tags associated with this entity."""
 
     active: bool = True
 
-    description: Optional[str] = None
+    description: str | None = None
     """Optional description text."""
 
 
@@ -87,12 +86,12 @@ class SlottedDataClass:
     age: int = 30
     """The age field with default value."""
 
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     """List of tags associated with this entity."""
 
     active: bool = True
 
-    description: Optional[str] = None
+    description: str | None = None
     """Optional description text."""
 
 
@@ -100,18 +99,14 @@ def test_slotted_dataclass_docstrings():
     """Test that docstrings are correctly extracted from slotted dataclass fields."""
     docs = get_docstrings(SlottedDataClass)
 
-    assert "name" in docs
     assert docs["name"] == "The name field."
 
-    assert "age" in docs
     assert docs["age"] == "The age field with default value."
 
-    assert "tags" in docs
     assert docs["tags"] == "List of tags associated with this entity."
 
     assert "active" not in docs  # No docstring for this field
 
-    assert "description" in docs
     assert docs["description"] == "Optional description text."
 
 
@@ -148,19 +143,20 @@ class DataClassWithMetadata:
     """The name field with metadata."""
 
     age: int = field(
-        default=30, metadata={"validator": "int_validator", "min": 0, "max": 120}
+        default=30,
+        metadata={"validator": "int_validator", "min": 0, "max": 120},
     )
     """The age field with default value and metadata."""
 
-    tags: List[str] = field(
-        default_factory=list, metadata={"doc": "Existing doc in metadata"}
+    tags: list[str] = field(
+        default_factory=list,
+        metadata={"doc": "Existing doc in metadata"},
     )
     """List of tags with existing doc in metadata."""
 
 
 def test_field_metadata_docstrings():
     """Test that docstrings are correctly added to field metadata."""
-
     fields = {f.name: f for f in dataclasses.fields(DataClassWithMetadata)}
 
     # Check that the field docstrings are correctly stored
@@ -168,16 +164,10 @@ def test_field_metadata_docstrings():
     assert fields["name"].metadata["__doc__"] == "The name field with metadata."
 
     assert "age" in fields
-    assert (
-        fields["age"].metadata["__doc__"]
-        == "The age field with default value and metadata."
-    )
+    assert fields["age"].metadata["__doc__"] == "The age field with default value and metadata."
 
     assert "tags" in fields
-    assert (
-        fields["tags"].metadata["__doc__"]
-        == "List of tags with existing doc in metadata."
-    )
+    assert fields["tags"].metadata["__doc__"] == "List of tags with existing doc in metadata."
 
 
 def test_field_metadata_preservation():
@@ -248,9 +238,7 @@ def test_dataclass_inheritance():
     assert "shared_field" in grandparent_docs
     assert grandparent_docs["shared_field"] == "Shared field from grandparent."
     assert "another_shared" in grandparent_docs
-    assert (
-        grandparent_docs["another_shared"] == "Another shared field from grandparent."
-    )
+    assert grandparent_docs["another_shared"] == "Another shared field from grandparent."
 
     parent_docs = get_docstrings(ParentDataClass)
     assert "parent_field" in parent_docs
@@ -282,10 +270,7 @@ def test_dataclass_inheritance():
     assert ParentDataClass.__doc_shared_field__ == "Shared field from parent."
 
     assert hasattr(GrandParentDataClass, "__doc_another_shared__")
-    assert (
-        GrandParentDataClass.__doc_another_shared__
-        == "Another shared field from grandparent."
-    )
+    assert GrandParentDataClass.__doc_another_shared__ == "Another shared field from grandparent."
 
     assert hasattr(ChildDataClass, "__doc_another_shared__")
     assert ChildDataClass.__doc_another_shared__ == "Overridden shared field."
@@ -301,10 +286,7 @@ def test_dataclass_inheritance():
     assert ParentDataClass.__doc_parent_field__ == "The parent field."
     assert ParentDataClass.__doc_grandparent_field__ == "The grandparent field."
     assert ParentDataClass.__doc_shared_field__ == "Shared field from parent."
-    assert (
-        ParentDataClass.__doc_another_shared__
-        == "Another shared field from grandparent."
-    )
+    assert ParentDataClass.__doc_another_shared__ == "Another shared field from grandparent."
 
 
 @docstrings
@@ -430,7 +412,6 @@ def test_api_consistency():
 
 def test_complex_inheritance_mro():
     """Test MRO resolution with complex inheritance involving different class types."""
-
     # Test MRO resolution for complex inheritance
     assert ComplexInheritance.__doc_complex_field__ == "Complex field."
 
@@ -526,10 +507,7 @@ def test_multi_level_mixed_inheritance():
     # Test MRO resolution for intermediate class
     assert IntermediateDataClass.__doc_base_attr__ == "Base attribute."
     assert IntermediateDataClass.__doc_intermediate_field__ == "Intermediate field."
-    assert (
-        IntermediateDataClass.__doc_shared_attr__
-        == "Shared attribute from intermediate."
-    )
+    assert IntermediateDataClass.__doc_shared_attr__ == "Shared attribute from intermediate."
 
     # Test instance creation and attribute access
     child_instance = ChildRegularClass()
@@ -625,11 +603,11 @@ def test_special_char_docstrings():
 class DefaultFactoryDataClass:
     """A dataclass with default factory functions."""
 
-    simple_list: List[str] = field(default_factory=list)
+    simple_list: list[str] = field(default_factory=list)
     """A simple list with default factory."""
 
-    complex_dict: Dict[str, List[int]] = field(
-        default_factory=lambda: {"default": [1, 2, 3]}
+    complex_dict: dict[str, list[int]] = field(
+        default_factory=lambda: {"default": [1, 2, 3]},
     )
     """A complex dictionary with default factory lambda."""
 
@@ -740,7 +718,7 @@ class ClassVarDataClass:
     DEFAULT_AGE: ClassVar[int] = 30
     """Default age constant."""
 
-    CONSTANTS: ClassVar[Dict[str, str]] = {"DEFAULT_NAME": "Unknown"}
+    CONSTANTS: ClassVar[dict[str, str]] = {"DEFAULT_NAME": "Unknown"}
     """Dictionary of constants."""
 
 

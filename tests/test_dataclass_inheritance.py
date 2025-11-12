@@ -1,11 +1,10 @@
 """Test dataclass inheritance and MRO resolution for runtime_docs."""
 
 import dataclasses
-from dataclasses import dataclass, field, InitVar
-from typing import List, Dict, ClassVar
+from dataclasses import InitVar, dataclass, field
+from typing import ClassVar
 
 from runtime_docstrings import docstrings, get_docstrings
-
 
 # Test basic dataclass inheritance with docstrings
 
@@ -46,9 +45,7 @@ def test_basic_dataclass_inheritance():
     assert "shared_field" in base_docs
     assert base_docs["shared_field"] == "Shared field from base class."
     assert "overridden_field" in base_docs
-    assert (
-        base_docs["overridden_field"] == "Field that will be overridden in child class."
-    )
+    assert base_docs["overridden_field"] == "Field that will be overridden in child class."
 
     child_docs = get_docstrings(ChildDataClass)
     assert "child_field" in child_docs
@@ -117,20 +114,13 @@ def test_multi_level_dataclass_inheritance():
 
     # Test MRO resolution for child class
 
-    assert (
-        MultiLevelChildDataClass.__doc_grandparent_field__
-        == "Grandparent field documentation."
-    )
-    assert (
-        MultiLevelChildDataClass.__doc_parent_field__ == "Parent field documentation."
-    )
+    assert MultiLevelChildDataClass.__doc_grandparent_field__ == "Grandparent field documentation."
+    assert MultiLevelChildDataClass.__doc_parent_field__ == "Parent field documentation."
     assert MultiLevelChildDataClass.__doc_child_field__ == "Child field documentation."
     assert MultiLevelChildDataClass.__doc_shared_field__ == "Shared field from parent."
 
     # Test MRO resolution for parent class
-    assert (
-        ParentDataClass.__doc_grandparent_field__ == "Grandparent field documentation."
-    )
+    assert ParentDataClass.__doc_grandparent_field__ == "Grandparent field documentation."
     assert ParentDataClass.__doc_parent_field__ == "Parent field documentation."
     assert ParentDataClass.__doc_shared_field__ == "Shared field from parent."
 
@@ -196,9 +186,7 @@ def test_inheritance_with_field_metadata():
     assert base_fields["name"].metadata["__doc__"] == "Name field with metadata."
 
     assert "age" in child_fields
-    assert (
-        child_fields["age"].metadata["__doc__"] == "Age field with overridden metadata."
-    )
+    assert child_fields["age"].metadata["__doc__"] == "Age field with overridden metadata."
 
 
 # Test complex inheritance with mixins and multiple inheritance
@@ -263,7 +251,7 @@ def test_complex_inheritance():
 class BaseWithFactory:
     """Base dataclass with default factory."""
 
-    items: List[str] = field(default_factory=list)
+    items: list[str] = field(default_factory=list)
     """List of items with default factory."""
 
 
@@ -273,10 +261,10 @@ class ChildWithFactory(BaseWithFactory):
     """Child dataclass inheriting default factory."""
 
     # Override with new default factory
-    items: List[str] = field(default_factory=lambda: ["default"])
+    items: list[str] = field(default_factory=lambda: ["default"])
     """List of items with overridden default factory."""
 
-    child_items: Dict[str, int] = field(default_factory=dict)
+    child_items: dict[str, int] = field(default_factory=dict)
     """Child-specific dictionary with default factory."""
 
 
@@ -291,9 +279,7 @@ def test_inheritance_with_default_factory():
     assert "items" in child_docs
     assert child_docs["items"] == "List of items with overridden default factory."
     assert "child_items" in child_docs
-    assert (
-        child_docs["child_items"] == "Child-specific dictionary with default factory."
-    )
+    assert child_docs["child_items"] == "Child-specific dictionary with default factory."
 
     # Test instance creation
     base_instance = BaseWithFactory()
@@ -600,15 +586,11 @@ def test_inheritance_with_field_renaming():
 
     assert "field_name" in base_fields
     assert (
-        base_fields["field_name"].metadata["__doc__"]
-        == "Field with metadata about original name."
+        base_fields["field_name"].metadata["__doc__"] == "Field with metadata about original name."
     )
 
     assert "field_name" in child_fields
-    assert (
-        child_fields["field_name"].metadata["__doc__"]
-        == "Renamed field with updated metadata."
-    )
+    assert child_fields["field_name"].metadata["__doc__"] == "Renamed field with updated metadata."
 
     # Check that the docstrings are accessible via get_docstrings
     base_docs = get_docstrings(BaseWithRename)

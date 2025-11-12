@@ -2,7 +2,11 @@ from runtime_docstrings import docstrings, get_docstrings
 
 
 def _prop(self):
-    """A property."""
+    """Property.
+
+    Returns: The property value.
+
+    """
     return self.__doc__  # pragma: no cover
 
 
@@ -77,7 +81,7 @@ def test_all():
 
     assert Child.__doc_BASE_VAR__ == "Represents a base variable."
     assert Child.__doc_CHILD_VAR__ == "Represents a child variable."
-    assert Child.ins_prop.__doc__ == "A property."
+    assert Child.ins_prop.__doc__.startswith("Property.")
     assert Child.another_prop.__doc__ == "Another property."
 
     assert Child.__doc__ is None
